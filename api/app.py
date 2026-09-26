@@ -95,5 +95,74 @@ def get_admin_stats():
         cur.close()
         conn.close()
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
+@app.route('/api/signup', methods=['POST'])
+def signup():
+    """Creates a new user with a securely hashed password."""
+    data = request.json
+    username = data.get('email')
+    password = data.get('password')
+    
+    if not username or not password:
+        return jsonify({"error": "Missing credentials"}), 400
+        
+    hashed_password = generate_password_hash(password)
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO Users (username, password_hash) VALUES (%s, %s) RETURNING id", 
+            (username, hashed_password)
+        )
+        user_id = cur.fetchone()[0]
+        conn.commit()
+        return jsonify({"status": "success", "user_id": user_id})
+    except psycopg2.errors.UniqueViolation:
+        conn.rollback()
+        return jsonify({"error": "Email already registered"}), 409
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    """Verifies user credentials against the database."""
+    data = request.json
+    username = data.get('email')
+    password = data.get('password')
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT id, password_hash FROM Users WHERE username = %s", (username,))
+        user = cur.fetchone()
+        
+        # Verify the hash matches the provided password
+        if user and check_password_hash(user[1], password):
+            return jsonify({"status": "success", "user_id": user[0]})
+        else:
+            return jsonify({"error": "Invalid email or password"}), 401
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
+@app.route('/api/admin-login', methods=['POST'])
+def admin_login():
+    """Validates the secret key against the .env file."""
+    data = request.json
+    secret_key = data.get('secret_key')
+    
+    if secret_key == os.environ.get('ADMIN_SECRET_KEY'):
+        return jsonify({"status": "success"})
+    else:
+        return jsonify({"error": "Unauthorized Access"}), 403
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

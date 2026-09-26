@@ -1,21 +1,18 @@
-import { useEffect, useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LandingPage from './components/LandingPage';
+import LoginPage from './components/LoginPage';
+import AdminDashboard from './components/AdminDashboard';
+import UserDashboard from './components/UserDashboard';
 
 export default function App() {
-  const [backendStatus, setBackendStatus] = useState("Connecting...")
-
-  useEffect(() => {
-    fetch('/api/health')
-      .then(res => res.json())
-      .then(data => setBackendStatus(data.message))
-      .catch(err => setBackendStatus("Backend offline"))
-  }, [])
-
   return (
-    <div className="min-h-screen bg-sabz-light flex items-center justify-center">
-      <div className="bg-white p-8 rounded-xl shadow-lg border-2 border-sabz-teal text-center">
-        <h1 className="text-4xl font-bold text-sabz-dark mb-4">S.A.B.Z. Node</h1>
-        <p className="text-xl text-sabz-primary font-semibold">{backendStatus}</p>
-      </div>
-    </div>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/dashboard" element={<UserDashboard />} />
+      </Routes>
+    </Router>
+  );
 }

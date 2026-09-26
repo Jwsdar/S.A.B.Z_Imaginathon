@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+@theme {
+  --color-sabz-primary: #7B9669;
+  --color-sabz-light: #E6E6E6;
+  --color-sabz-teal: #6C8480;
+  --color-sabz-mint: #BAC8B1;
+  --color-sabz-dark: #404E3B;
+}
+
+.dark-map-tiles {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
