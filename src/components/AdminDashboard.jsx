@@ -1,6 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+
+// 1. Interactive Background Component (Styled with the Admin Dashboard's gradient)
+const InteractiveBackground = () => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [particles, setParticles] = useState([]);
+
+  useEffect(() => {
+    const newParticles = Array.from({ length: 40 }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}vw`,
+      size: `${Math.random() * 4 + 1}px`,
+      duration: `${Math.random() * 20 + 15}s`, 
+      delay: `-${Math.random() * 30}s`, 
+      baseOpacity: Math.random() * 0.3 + 0.1, 
+      xDrift: `${(Math.random() - 0.5) * 50}px` 
+    }));
+    setParticles(newParticles);
+
+    const handleMouseMove = (e) => {
+      requestAnimationFrame(() => {
+        setMousePos({ x: e.clientX, y: e.clientY });
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  const parallaxX = typeof window !== 'undefined' ? (mousePos.x - window.innerWidth / 2) * -0.03 : 0;
+  const parallaxY = typeof window !== 'undefined' ? (mousePos.y - window.innerHeight / 2) * -0.03 : 0;
+
+  return (
+    <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden bg-black bg-gradient-to-br from-[#404E3B] via-[#121710] to-black">
+      
+      {/* Interactive Cursor Spotlight */}
+      <div
+        className="absolute inset-0 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(circle 500px at ${mousePos.x}px ${mousePos.y}px, rgba(123, 150, 105, 0.12), transparent 70%)`
+        }}
+      />
+
+      {/* Parallax Particle Layer */}
+      <div
+        className="absolute inset-0 will-change-transform"
+        style={{
+          transform: `translate3d(${parallaxX}px, ${parallaxY}px, 0)`,
+          transition: 'transform 0.2s ease-out'
+        }}
+      >
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="absolute bg-[#BAC8B1] rounded-full"
+            style={{
+              left: p.left,
+              top: '110%',
+              width: p.size,
+              height: p.size,
+              filter: 'blur(1.5px)',
+              animation: `dustFloat ${p.duration} linear infinite`,
+              animationDelay: p.delay,
+              '--base-opacity': p.baseOpacity,
+              '--x-drift': p.xDrift
+            }}
+          />
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes dustFloat {
+          0% { transform: translateY(0) translateX(0); opacity: 0; }
+          10% { opacity: var(--base-opacity); }
+          90% { opacity: var(--base-opacity); }
+          100% { transform: translateY(-120vh) translateX(var(--x-drift)); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+};
 
 // --- Dummy Data ---
 const OVERALL_STATS = {
@@ -89,10 +169,13 @@ export default function AdminDashboard() {
   const IconUsers = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>;
 
   return (
-    <div className="flex h-screen bg-black bg-gradient-to-br from-[#404E3B] via-[#121710] to-black text-[#E6E6E6] font-sans overflow-hidden">
+    <div className="flex h-screen relative z-0 bg-transparent text-[#E6E6E6] font-sans overflow-hidden">
       
-      {/* Sidebar - Matching Dashdark X structure */}
-      <aside className="w-64 border-r border-sabz-teal/30 flex flex-col justify-between p-6">
+      {/* 2. Render Background */}
+      <InteractiveBackground />
+
+      {/* Sidebar - Added backdrop-blur-md for glass effect */}
+      <aside className="w-64 border-r border-sabz-teal/30 flex flex-col justify-between p-6 backdrop-blur-md">
         <div>
           <div className="flex items-center gap-3 mb-12">
             <div className="w-8 h-8 rounded-lg bg-sabz-primary flex items-center justify-center font-bold font-serif text-sabz-dark">S</div>
@@ -124,7 +207,7 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-8 overflow-y-auto z-10">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-2xl font-bold">{activeData.name}</h1>
@@ -152,7 +235,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Main Chart Area (Spans 2 columns) */}
-          <div className="lg:col-span-2 bg-sabz-teal/10 border border-sabz-teal/30 rounded-2xl p-6 flex flex-col">
+          <div className="lg:col-span-2 bg-sabz-teal/10 border border-sabz-teal/30 rounded-2xl p-6 flex flex-col backdrop-blur-sm">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold">Composting Progress</h3>
               <div className="flex gap-4 text-xs">
@@ -187,7 +270,7 @@ export default function AdminDashboard() {
           <div className="flex flex-col gap-6">
             
             {/* Chiniot Map */}
-            <div className="bg-sabz-teal/10 border border-sabz-teal/30 rounded-2xl p-6 h-[250px] flex flex-col">
+            <div className="bg-sabz-teal/10 border border-sabz-teal/30 rounded-2xl p-6 h-[250px] flex flex-col backdrop-blur-sm">
               <h3 className="font-bold mb-4">Hub Locations</h3>
               <div className="flex-1 rounded-xl overflow-hidden border border-sabz-teal/50 z-0">
                 <MapContainer center={[31.7220, 72.9770]} zoom={14} style={{ height: '100%', width: '100%' }}>
@@ -210,7 +293,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Collection Activity Bar Chart */}
-            <div className="bg-sabz-teal/10 border border-sabz-teal/30 rounded-2xl p-6 h-[250px] flex flex-col">
+            <div className="bg-sabz-teal/10 border border-sabz-teal/30 rounded-2xl p-6 h-[250px] flex flex-col backdrop-blur-sm">
               <h3 className="font-bold mb-4">Daily Collection Activity</h3>
               <div className="flex-1">
                 <ResponsiveContainer width="100%" height="100%">
@@ -233,7 +316,7 @@ export default function AdminDashboard() {
 // Reusable Sub-Component for Metric Cards
 function MetricCard({ title, value, trend }) {
   return (
-    <div className="bg-sabz-teal/10 border border-sabz-teal/30 p-5 rounded-2xl flex flex-col justify-between">
+    <div className="bg-sabz-teal/10 border border-sabz-teal/30 p-5 rounded-2xl flex flex-col justify-between backdrop-blur-sm">
       <div className="text-sabz-mint/70 text-sm font-medium mb-2">{title}</div>
       <div className="flex items-end gap-3">
         <div className="text-3xl font-bold">{value}</div>

@@ -224,7 +224,7 @@ export default function LoginPage() {
 
       <div className="w-full lg:w-1/2 h-[40vh] lg:h-auto bg-sabz-dark p-0 lg:p-6 flex items-center justify-center">
         <div className="w-full h-full lg:rounded-[2rem] overflow-hidden bg-sabz-teal relative shadow-2xl">
-          <img src="/login-bg.jpg" alt="S.A.B.Z Ecosystem" className="absolute inset-0 w-full h-full object-cover" />
+          <img src="/bg2.jpg" alt="S.A.B.Z Ecosystem" className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-sabz-dark/20 mix-blend-multiply"></div>
         </div>
       </div>

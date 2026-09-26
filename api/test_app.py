@@ -1,5 +1,5 @@
 import pytest
-from app import app
+from api.index import app
 from unittest.mock import MagicMock, patch
 
 @pytest.fixture

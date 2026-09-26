@@ -3,6 +3,86 @@ import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Scanner } from '@yudiel/react-qr-scanner';
 
+// 1. Interactive Background Component (Adapted for the Dashboard's hex colors)
+const InteractiveBackground = () => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [particles, setParticles] = useState([]);
+
+  useEffect(() => {
+    const newParticles = Array.from({ length: 40 }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}vw`,
+      size: `${Math.random() * 4 + 1}px`,
+      duration: `${Math.random() * 20 + 15}s`, 
+      delay: `-${Math.random() * 30}s`, 
+      baseOpacity: Math.random() * 0.3 + 0.1, 
+      xDrift: `${(Math.random() - 0.5) * 50}px` 
+    }));
+    setParticles(newParticles);
+
+    const handleMouseMove = (e) => {
+      requestAnimationFrame(() => {
+        setMousePos({ x: e.clientX, y: e.clientY });
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  const parallaxX = typeof window !== 'undefined' ? (mousePos.x - window.innerWidth / 2) * -0.03 : 0;
+  const parallaxY = typeof window !== 'undefined' ? (mousePos.y - window.innerHeight / 2) * -0.03 : 0;
+
+  return (
+    <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden bg-[#0d110c]">
+      
+      {/* Interactive Cursor Spotlight */}
+      <div
+        className="absolute inset-0 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(circle 500px at ${mousePos.x}px ${mousePos.y}px, rgba(123, 150, 105, 0.12), transparent 70%)`
+        }}
+      />
+
+      {/* Parallax Particle Layer */}
+      <div
+        className="absolute inset-0 will-change-transform"
+        style={{
+          transform: `translate3d(${parallaxX}px, ${parallaxY}px, 0)`,
+          transition: 'transform 0.2s ease-out'
+        }}
+      >
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="absolute bg-[#BAC8B1] rounded-full"
+            style={{
+              left: p.left,
+              top: '110%',
+              width: p.size,
+              height: p.size,
+              filter: 'blur(1.5px)',
+              animation: `dustFloat ${p.duration} linear infinite`,
+              animationDelay: p.delay,
+              '--base-opacity': p.baseOpacity,
+              '--x-drift': p.xDrift
+            }}
+          />
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes dustFloat {
+          0% { transform: translateY(0) translateX(0); opacity: 0; }
+          10% { opacity: var(--base-opacity); }
+          90% { opacity: var(--base-opacity); }
+          100% { transform: translateY(-120vh) translateX(var(--x-drift)); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 export default function UserDashboard() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState('');
@@ -66,7 +146,6 @@ export default function UserDashboard() {
     setIsRecording(true);
     
     try {
-      // Pointing to your exact Flask endpoint
       const response = await fetch('/api/log-waste', {
         method: 'POST',
         headers: {
@@ -95,7 +174,10 @@ export default function UserDashboard() {
   };
 
   return (
-    <div className="min-h-screen lg:h-screen flex flex-col bg-[#0d110c] text-[#E6E6E6] font-sans lg:overflow-hidden">
+    <div className="min-h-screen lg:h-screen flex flex-col bg-transparent relative z-0 text-[#E6E6E6] font-sans lg:overflow-hidden">
+      
+      {/* 2. Render the interactive background */}
+      <InteractiveBackground />
       
       <nav className="h-16 shrink-0 bg-[#404E3B]/30 border-b border-[#6C8480]/30 px-6 flex justify-between items-center backdrop-blur-md z-50">
         <div className="flex items-center gap-3">
@@ -116,7 +198,7 @@ export default function UserDashboard() {
             <p className="text-[#BAC8B1] text-sm">Ready to log your green waste?</p>
           </div>
 
-          <div className="flex-1 bg-[#404E3B]/20 border border-[#6C8480]/20 rounded-3xl p-6 flex flex-col min-h-[250px] lg:min-h-0">
+          <div className="flex-1 bg-[#404E3B]/20 border border-[#6C8480]/20 rounded-3xl p-6 flex flex-col min-h-[250px] lg:min-h-0 backdrop-blur-sm">
             <h3 className="text-sm font-bold text-[#BAC8B1] mb-6 shrink-0 uppercase tracking-wider">Weekly Deposits (kg)</h3>
             <div className="flex-1 min-h-0 w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -218,25 +300,25 @@ export default function UserDashboard() {
         {/* RIGHT COLUMN */}
         <div className="flex flex-col gap-6 lg:h-full lg:overflow-hidden">
           <div className="shrink-0 grid grid-cols-2 gap-4">
-            <div className="bg-[#404E3B]/20 border border-[#6C8480]/20 p-4 rounded-2xl">
+            <div className="bg-[#404E3B]/20 border border-[#6C8480]/20 p-4 rounded-2xl backdrop-blur-sm">
               <div className="text-[#BAC8B1] text-xs font-medium mb-1">Current Balance</div>
               <div className="text-xl font-bold text-[#7B9669]">{userData.credits}</div>
             </div>
-            <div className="bg-[#404E3B]/20 border border-[#6C8480]/20 p-4 rounded-2xl">
+            <div className="bg-[#404E3B]/20 border border-[#6C8480]/20 p-4 rounded-2xl backdrop-blur-sm">
               <div className="text-[#BAC8B1] text-xs font-medium mb-1">Lifetime Earned</div>
               <div className="text-xl font-bold text-[#7B9669]">{userData.lifetimeCredits}</div>
             </div>
-            <div className="bg-[#404E3B]/20 border border-[#6C8480]/20 p-4 rounded-2xl">
+            <div className="bg-[#404E3B]/20 border border-[#6C8480]/20 p-4 rounded-2xl backdrop-blur-sm">
               <div className="text-[#BAC8B1] text-xs font-medium mb-1">Monthly (kg)</div>
               <div className="text-xl font-bold text-[#E6E6E6]">{userData.monthlyDeposits}</div>
             </div>
-            <div className="bg-[#404E3B]/20 border border-[#6C8480]/20 p-4 rounded-2xl">
+            <div className="bg-[#404E3B]/20 border border-[#6C8480]/20 p-4 rounded-2xl backdrop-blur-sm">
               <div className="text-[#BAC8B1] text-xs font-medium mb-1">Total Waste (kg)</div>
               <div className="text-xl font-bold text-[#E6E6E6]">{userData.wasteDeposited}</div>
             </div>
           </div>
 
-          <div className="shrink-0 bg-gradient-to-r from-[#404E3B]/30 to-transparent border-l-4 border-[#7B9669] rounded-r-2xl p-4">
+          <div className="shrink-0 bg-gradient-to-r from-[#404E3B]/30 to-transparent border-l-4 border-[#7B9669] rounded-r-2xl p-4 backdrop-blur-sm">
             <h4 className="text-[#E6E6E6] font-bold text-sm mb-2 flex items-center gap-2">
               🌿 Organic Waste Guidelines
             </h4>
@@ -247,10 +329,11 @@ export default function UserDashboard() {
           </div>
 
           <div className="flex-1 border-2 border-dashed border-[#6C8480]/30 rounded-2xl flex items-center justify-center bg-[#1a1f18]/50 min-h-[150px] lg:min-h-0 relative overflow-hidden group">
-            <div className="text-center">
-              <svg className="w-8 h-8 text-[#6C8480] mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-              <span className="text-[#6C8480] text-sm font-medium">Educational Ad Space</span>
-            </div>
+              <img 
+                src="/waste_2.jpg" 
+                alt="Educational Content" 
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+              />
           </div>
         </div>
       </main>
