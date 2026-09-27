@@ -86,12 +86,12 @@ const InteractiveBackground = () => {
 export default function UserDashboard() {
   const navigate = useNavigate();
   const [userId, setUserId] = useState('');
+  const [userName, setUserName] = useState('Loading...');
   const [wasteType, setWasteType] = useState('organic');
   const [scannedData, setScannedData] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   
   const userData = {
-    name: "Ahmed Hassan",
     credits: "1,250",
     lifetimeCredits: "4,500",
     wasteDeposited: "45.2",
@@ -104,8 +104,28 @@ export default function UserDashboard() {
 
   useEffect(() => {
     const storedId = localStorage.getItem('sabz_user_id');
-    if (!storedId) navigate('/login');
-    else setUserId(storedId);
+    if (!storedId) {
+      navigate('/login');
+    } else {
+      setUserId(storedId);
+      
+      const fetchUserProfile = async () => {
+        try {
+          const response = await fetch(`/api/user-profile?user_id=${storedId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setUserName(data.name || 'Citizen'); 
+          } else {
+            setUserName('Citizen'); 
+          }
+        } catch (error) {
+          console.error("Failed to fetch user profile:", error);
+          setUserName('Citizen'); 
+        }
+      };
+
+      fetchUserProfile();
+    }
   }, [navigate]);
 
   const handleLogout = () => {
@@ -176,7 +196,6 @@ export default function UserDashboard() {
   return (
     <div className="min-h-screen lg:h-screen flex flex-col bg-transparent relative z-0 text-[#E6E6E6] font-sans lg:overflow-hidden">
       
-      {/* 2. Render the interactive background */}
       <InteractiveBackground />
       
       <nav className="h-16 shrink-0 bg-[#404E3B]/30 border-b border-[#6C8480]/30 px-6 flex justify-between items-center backdrop-blur-md z-50">
@@ -194,7 +213,7 @@ export default function UserDashboard() {
         {/* LEFT COLUMN */}
         <div className="flex flex-col gap-6 lg:h-full lg:overflow-hidden">
           <div className="shrink-0">
-            <h1 className="text-3xl font-bold mb-2">Hello, {userData.name} 👋</h1>
+            <h1 className="text-3xl font-bold mb-2">Hello, {userName} 👋</h1>
             <p className="text-[#BAC8B1] text-sm">Ready to log your green waste?</p>
           </div>
 

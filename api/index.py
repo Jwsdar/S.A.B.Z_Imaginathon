@@ -164,5 +164,41 @@ def admin_login():
     else:
         return jsonify({"error": "Unauthorized Access"}), 403
 
+
+@app.route('/api/user-profile', methods=['GET'])
+def get_user_profile():
+    """Fetches user details for the dashboard greeting."""
+    user_id = request.args.get('user_id')
+    
+    if not user_id:
+        return jsonify({"error": "Missing user_id parameter"}), 400
+        
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT username FROM Users WHERE id = %s", (user_id,))
+        user = cur.fetchone()
+        
+        if user:
+            # The schema stores the email in the 'username' column. 
+            # We extract the part before the '@' and format it as a display name.
+            raw_email = user[0]
+            if '@' in raw_email:
+                name_part = raw_email.split('@')[0]
+                # Replaces dots with spaces and capitalizes each word (ahmed.hassan -> Ahmed Hassan)
+                display_name = name_part.replace('.', ' ').title()
+            else:
+                display_name = raw_email.title()
+                
+            return jsonify({"status": "success", "name": display_name})
+        else:
+            return jsonify({"error": "User not found"}), 404
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
