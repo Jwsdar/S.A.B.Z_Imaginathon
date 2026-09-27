@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 // 1. Interactive Background Component (Now set to -z-10 to avoid layout interference)
 const InteractiveBackground = () => {
@@ -134,7 +135,11 @@ export default function LandingPage() {
 
       {/* Navbar */}
       <nav className="absolute top-0 w-full flex justify-between items-center px-6 lg:px-12 py-8 z-50 drop-shadow-lg text-white">
-        <div className="text-2xl font-bold font-serif tracking-wider">S.A.B.Z</div>
+        <img 
+          src="/Logo.jpeg" 
+          alt="S.A.B.Z Logo" 
+          className="w-14 h-14 md:w-16 md:h-16 object-cover rounded-full shadow-[0_0_15px_rgba(123,150,105,0.4)] hover:scale-105 transition-transform cursor-pointer" 
+        />
         
         <div className="hidden md:flex space-x-8 text-sm font-bold rtl:space-x-reverse">
           <button onClick={() => scrollToSection('01')} className="hover:text-sabz-mint transition-colors drop-shadow-md">{t('nav.works')}</button>
@@ -153,12 +158,12 @@ export default function LandingPage() {
             </svg>
           </button>
 
-          <a href="/login" className="flex items-center space-x-2 hover:text-sabz-mint transition-colors rtl:space-x-reverse drop-shadow-md font-bold">
+          <Link to="/login" className="flex items-center space-x-2 hover:text-sabz-mint transition-colors rtl:space-x-reverse drop-shadow-md font-bold">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span className="hidden md:inline">{t('nav.account')}</span>
-          </a>
+          </Link>
         </div>
       </nav>
 
@@ -195,8 +200,8 @@ export default function LandingPage() {
         </div>
         <div className="max-w-4xl pt-20 drop-shadow-lg">
           <div className="flex items-center space-x-4 rtl:space-x-reverse mb-6">
-            <div className="w-16 h-0.5 bg-sabz-primary shadow-[0_0_5px_rgba(123,150,105,0.8)]"></div>
-            <span className="text-sabz-primary font-bold tracking-widest uppercase text-xs lg:text-sm drop-shadow-md">{t('hero.subtitle')}</span>
+            <div className="w-16 h-0.5 bg-sabz-primary shadow-[0_2px_4px_rgba(0,0,0,0.9)]"></div>
+            <span className="text-sabz-primary font-bold tracking-widest uppercase text-xs lg:text-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">{t('hero.subtitle')}</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-serif font-bold leading-tight mb-8 whitespace-pre-line text-white drop-shadow-xl">
             {t('hero.title')}
@@ -222,12 +227,12 @@ export default function LandingPage() {
           <p className="text-sabz-mint/80 mb-8 leading-relaxed text-base md:text-lg">
             {t('s1.desc')}
           </p>
-          <a href="/login" className="flex items-center space-x-2 rtl:space-x-reverse text-sabz-primary hover:text-sabz-mint transition-colors group w-max font-bold">
+          <Link to="/process" className="flex items-center space-x-2 rtl:space-x-reverse text-sabz-primary hover:text-sabz-mint transition-colors group w-max font-bold">
             <span>{t('s1.btn')}</span>
             <svg className="w-5 h-5 rtl:rotate-180 group-hover:translate-x-2 rtl:group-hover:-translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
-          </a>
+          </Link>
         </div>
         <div className="w-full h-80 lg:w-[400px] lg:h-[550px] flex-shrink-0 bg-sabz-teal/30 border border-sabz-primary/30 shadow-2xl shadow-black/80 rounded-3xl bg-cover bg-center" style={{ backgroundImage: 'url("/waste_1.jpg")' }}>
         </div>
@@ -247,12 +252,12 @@ export default function LandingPage() {
           <p className="text-sabz-mint/80 mb-8 leading-relaxed text-base md:text-lg">
             {t('s2.desc')}
           </p>
-          <button onClick={() => scrollToSection('03')} className="flex items-center space-x-2 rtl:space-x-reverse text-sabz-primary hover:text-sabz-mint transition-colors group font-bold">
+          <Link to="/chiniot-synergy" className="flex items-center space-x-2 rtl:space-x-reverse text-sabz-primary hover:text-sabz-mint transition-colors group font-bold">
             <span>{t('s1.btn')}</span>
             <svg className="w-5 h-5 rtl:rotate-180 group-hover:translate-x-2 rtl:group-hover:-translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -268,36 +273,40 @@ export default function LandingPage() {
           <p className="text-sabz-mint/80 mb-8 leading-relaxed text-base md:text-lg">
             {t('s3.desc')}
           </p>
-          <a href="/login" className="flex items-center space-x-2 rtl:space-x-reverse text-sabz-primary hover:text-sabz-mint transition-colors group w-max font-bold">
+          <Link to="/rewards" className="flex items-center space-x-2 rtl:space-x-reverse text-sabz-primary hover:text-sabz-mint transition-colors group w-max font-bold">
             <span>{t('s1.btn')}</span>
             <svg className="w-5 h-5 rtl:rotate-180 group-hover:translate-x-2 rtl:group-hover:-translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
-          </a>
+          </Link>
         </div>
-        <div className="w-full h-80 lg:w-[400px] lg:h-[550px] flex-shrink-0 bg-sabz-teal/30 border border-sabz-primary/30 shadow-2xl shadow-black/80 rounded-3xl bg-cover bg-center" style={{ backgroundImage: 'url("/image3.jpg")' }}>
+        <div className="w-full h-80 lg:w-[400px] lg:h-[550px] flex-shrink-0 bg-sabz-teal/30 border border-sabz-primary/30 shadow-2xl shadow-black/80 rounded-3xl bg-cover bg-center" style={{ backgroundImage: 'url("/exchange.jpg")' }}>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="px-6 lg:px-32 py-16 border-t border-sabz-teal/30 mt-10 lg:mt-20 flex flex-col md:flex-row justify-between gap-12">
         <div className="mb-10 md:mb-0 max-w-sm">
-          <div className="text-2xl font-bold font-serif tracking-wider mb-4">S.A.B.Z</div>
+          <img 
+            src="/Logo.jpeg" 
+            alt="S.A.B.Z Logo" 
+            className="w-20 h-20 object-cover rounded-full mb-6 shadow-[0_0_15px_rgba(123,150,105,0.3)] hover:scale-105 transition-transform" 
+          />
           <p className="text-sabz-mint/80 mb-12 text-sm md:text-base">{t('footer.slogan')}</p>
           <p className="text-sabz-mint/50 text-xs md:text-sm">{t('footer.copyright')}</p>
         </div>
         <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-20 rtl:space-x-reverse">
           <div className="flex flex-col space-y-4">
             <h4 className="text-sabz-primary font-bold mb-2 text-sm md:text-base">{t('footer.more')}</h4>
-            <a href="#" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.about')}</a>
+            <Link to="/about" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.about')}</Link>
             <a href="#" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.impact')}</a>
-            <a href="#" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.contact')}</a>
+            <Link to="/contact" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.contact')}</Link>
           </div>
           <div className="flex flex-col space-y-4">
             <h4 className="text-sabz-primary font-bold mb-2 text-sm md:text-base">{t('footer.partners')}</h4>
-            <a href="#" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.muni')}</a>
-            <a href="#" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.union')}</a>
-            <a href="#" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.press')}</a>
+            <Link to="/partners" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.muni')}</Link>
+            <Link to="/partners" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.union')}</Link>
+            <Link to="/partners" className="text-sabz-mint/80 hover:text-sabz-light text-sm">{t('footer.links.press')}</Link>
           </div>
         </div>
       </footer>
